@@ -1,0 +1,12 @@
+include README.md LICENSE pyproject.toml MANIFEST.in
+recursive-include src/curvefit_stats *.py py.typed
+recursive-include docs *.md
+recursive-include examples *.py
+recursive-include tests *.py
+recursive-include tools *.py
+recursive-include requirements *.txt *.lock
+recursive-include .github/workflows *.yml
+prune .venv
+prune build
+prune dist
+global-exclude __pycache__ *.py[cod]
