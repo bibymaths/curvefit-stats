@@ -5,9 +5,10 @@
 # curvefit-stats
 
 [![Release](https://github.com/bibymaths/curvefit-stats/actions/workflows/release.yml/badge.svg)](https://github.com/bibymaths/curvefit-stats/actions/workflows/release.yml) 
+[![CI](https://github.com/bibymaths/curvefit-stats/actions/workflows/ci.yml/badge.svg)](https://github.com/bibymaths/curvefit-stats/actions/workflows/ci.yml) 
+[![Documentation](https://github.com/bibymaths/curvefit-stats/actions/workflows/docs.yml/badge.svg)](https://github.com/bibymaths/curvefit-stats/actions/workflows/docs.yml) 
 
-
-[Documentation](https://bibymaths.github.io/curvefit-stats/) ·
+[Documentation](https://bibymaths.github.io/curvefit-stats/) |
 [Quickstart](docs/quickstart.md) 
 
 Statistical inference for SciPy-style nonlinear models, plus shared-parameter
