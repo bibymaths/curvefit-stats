@@ -1,12 +1,20 @@
 include README.md LICENSE pyproject.toml MANIFEST.in
-recursive-include src/curvefit_stats *.py py.typed
-recursive-include docs *.md
+include zensical.toml
+include CITATION.cff .zenodo.json THIRD_PARTY_NOTICES.md
+include CHANGELOG.md RELEASE_NOTES.md
+include LICENSE-DOCS.md
+
+graft docs
+graft requirements/docs
 recursive-include examples *.py
 recursive-include tests *.py
 recursive-include tools *.py
-recursive-include requirements *.txt *.lock
+recursive-include requirements *.txt *.lock *.toml
 recursive-include .github/workflows *.yml
+
 prune .venv
 prune build
 prune dist
-global-exclude __pycache__ *.py[cod]
+prune site
+
+global-exclude __pycache__ *.py[cod] .DS_Store

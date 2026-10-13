@@ -74,6 +74,19 @@ def main() -> None:
             "requirements/dev-py312.lock",
             "tools/check_install.py",
             ".github/workflows/ci.yml",
+            "zensical.toml",
+            "docs/_tools/build.py",
+            "docs/_tools/prepare.py",
+            "docs/_tools/validate.py",
+            "docs/assets/brand/logo.svg",
+            "docs/assets/brand/favicon.svg",
+            "docs/assets/stylesheets/extra.css",
+            "docs/assets/javascripts/math.js",
+            "docs/assets/vendor/katex/katex.min.css",
+            "docs/assets/vendor/katex/katex.min.js",
+            "docs/assets/vendor/katex/auto-render.min.js",
+            "requirements/docs/pyproject.toml",
+            "requirements/docs/uv.lock",
         }
         required |= {"src/curvefit_stats/" + name for name in expected}
         assert required <= relative, required - relative
