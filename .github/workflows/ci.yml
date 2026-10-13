@@ -126,3 +126,33 @@ jobs:
           package=$(python -c 'import pathlib, curvefit_stats; print(pathlib.Path(curvefit_stats.__file__).parent)')
           python -m pytest -c pyproject.toml --no-cov --doctest-modules "$package" examples -W 'default:Bound-active parameter rows:UserWarning'
       - run: python examples/workflows.py
+
+  release-gate:
+    name: release-gate
+    needs:
+      - quality
+      - distributions
+      - compatibility
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify all CI jobs succeeded
+        env:
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          DISTRIBUTIONS_RESULT: ${{ needs.distributions.result }}
+          COMPATIBILITY_RESULT: ${{ needs.compatibility.result }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Quality: $QUALITY_RESULT"
+          echo "Distributions: $DISTRIBUTIONS_RESULT"
+          echo "Compatibility matrix: $COMPATIBILITY_RESULT"
+
+          [[ "$QUALITY_RESULT" == "success" ]]
+          [[ "$DISTRIBUTIONS_RESULT" == "success" ]]
+          [[ "$COMPATIBILITY_RESULT" == "success" ]]
+
+          echo "All release checks passed."
+

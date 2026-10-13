@@ -170,14 +170,13 @@ We gratefully acknowledge the NumPy and SciPy developers and contributors for th
 
 ## License
 
-Source code: curvefit-stats is licensed under the MIT License.
+The Python source code and executable examples in `curvefit-stats`
+are licensed under the [MIT License](LICENSE).
 
-Documentation: Original documentation, explanatory text, and scientific illustrations are licensed under Creative Commons Attribution 4.0 International (CC BY 4.0), unless otherwise noted.
+Original documentation and illustrations are licensed under
+[CC BY 4.0](LICENSE-DOCS.md), unless otherwise noted.
 
 Copyright © 2026 Abhinav Mishra.
 
-See [LICENSE](LICENSE) for the full license terms.
-
-This project depends on independently licensed open-source libraries, including NumPy and SciPy. Their respective licenses and acknowledgments are documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-
-The MIT License applies to the original `curvefit-stats` code and does not supersede the licenses of its third-party dependencies.
+Third-party materials retain their respective licenses.
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
