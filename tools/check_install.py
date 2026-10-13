@@ -51,6 +51,7 @@ def main() -> None:
     assert not location.is_relative_to(checkout / "src"), location
     metadata = importlib.metadata.metadata("curvefit-stats")
     import tomllib
+
     project_root = Path(__file__).resolve().parents[1]
     with (project_root / "pyproject.toml").open("rb") as file:
         expected_version = tomllib.load(file)["project"]["version"]
