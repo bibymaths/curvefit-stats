@@ -1,0 +1,4 @@
+KaTeX 0.16.22 (MIT), vendored for offline mathematical rendering.
+Source: https://registry.npmjs.org/katex/-/katex-0.16.22.tgz
+Tarball SHA256: e9e0d167db3175481cbadaff38e8d90b130f6a3ddb451a47e43c577fd511f365
+Only minified renderer/CSS/auto-render and fonts are distributed.

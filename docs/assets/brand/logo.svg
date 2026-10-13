@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">curvefit-stats: a curve and its uncertainty band</title>
+  <rect width="64" height="64" rx="16" fill="#2563eb"/>
+  <path d="M12 14C24 14 23 44 52 44L52 54C21 54 20 28 12 28Z" fill="#83dce6" opacity=".45"/>
+  <path d="M12 21C23 21 24 49 52 49" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="19" cy="24" r="3" fill="#83dce6"/><circle cx="33" cy="42" r="3" fill="#83dce6"/>
+</svg>

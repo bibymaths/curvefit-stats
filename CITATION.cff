@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use curvefit-stats in research, please cite the software release."
+type: software
+title: "curvefit-stats: Statistical Inference and Uncertainty Quantification for SciPy Curve Fitting"
+authors:
+  - family-names: Mishra
+    given-names: Abhinav
+    orcid: https://orcid.org/0009-0005-3179-7408
+    affiliation: Independent Researcher, India
+repository-code: "https://github.com/bibymaths/curvefit-stats"
+url: "https://github.com/bibymaths/curvefit-stats"
+license: MIT
+version: 0.1.0
+keywords:
+  - nonlinear regression
+  - statistical inference
+  - uncertainty quantification
+  - SciPy
+  - curve fitting

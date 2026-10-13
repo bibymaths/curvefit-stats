@@ -1,0 +1,153 @@
+[project]
+site_name = "curvefit-stats"
+site_url = "https://bibymaths.github.io/curvefit-stats/"
+site_description = "Fit interpretable models. Quantify uncertainty. Make the statistical assumptions explicit."
+site_author = "Abhinav Mishra"
+copyright = "Copyright &copy; 2026 Abhinav Mishra · MIT licensed"
+repo_url = "https://github.com/bibymaths/curvefit-stats"
+repo_name = "bibymaths/curvefit-stats"
+edit_uri = "edit/main/docs/"
+docs_dir = "docs"
+site_dir = "site"
+exclude_docs = """
+api.md
+_tools/**
+"""
+extra_css = ["assets/stylesheets/extra.css", "assets/vendor/katex/katex.min.css"]
+extra_javascript = [
+  "assets/vendor/katex/katex.min.js",
+  "assets/vendor/katex/auto-render.min.js",
+  "assets/javascripts/math.js",
+]
+nav = [
+  { "Overview" = "index.md" },
+  { "Get started" = [
+    { "Installation" = "installation.md" },
+    { "Quickstart" = "quickstart.md" },
+    { "Choose a workflow" = "workflows.md" },
+  ] },
+  { "Tutorials" = [
+    { "From a fit to uncertainty" = "tutorials/fitting.md" },
+    { "Kinetics and asymmetric errors" = "tutorials/kinetics.md" },
+    { "Shared-parameter experiments" = "tutorials/global.md" },
+    { "Errors in both axes" = "tutorials/eiv.md" },
+  ] },
+  { "Statistical concepts" = [
+    { "Assumptions and equations" = "user-guide.md" },
+    { "Combining estimators and inference" = "integration.md" },
+  ] },
+  { "Examples" = "examples.md" },
+  { "API reference" = [{ "Overview" = "reference/index.md" }] },
+  { "Development" = [
+    { "Contributing and packaging" = "development.md" },
+    { "Documentation site" = "documentation.md" },
+    { "Numerical stress tests" = "stress-testing.md" },
+    { "Scientific review" = "review.md" },
+    { "Release verification" = "release-readiness.md" },
+  ] },
+]
+
+[project.theme]
+variant = "modern"
+language = "en"
+logo = "assets/brand/logo.svg"
+favicon = "assets/brand/favicon.svg"
+features = [
+  "content.code.copy",
+  "content.code.select",
+  "content.tabs.link",
+  "content.tooltips",
+  "navigation.footer",
+  "navigation.indexes",
+  "navigation.instant",
+  "navigation.instant.prefetch",
+  "navigation.instant.progress",
+  "navigation.path",
+  "navigation.sections",
+  "navigation.tabs",
+  "navigation.top",
+  "navigation.tracking",
+  "search.highlight",
+  "toc.follow",
+]
+# Use local system fonts: no remote font service or network dependency.
+font = false
+
+[project.theme.icon]
+repo = "fontawesome/brands/github"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme)"
+primary = "custom"
+accent = "custom"
+toggle.icon = "lucide/sun-moon"
+toggle.name = "Switch to light mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "custom"
+accent = "custom"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "custom"
+accent = "custom"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to system preference"
+
+[[project.extra.social]]
+icon = "fontawesome/brands/github"
+link = "https://github.com/bibymaths/curvefit-stats"
+name = "curvefit-stats on GitHub"
+
+[project.markdown_extensions]
+admonition = {}
+attr_list = {}
+def_list = {}
+footnotes = {}
+md_in_html = {}
+toc.permalink = true
+pymdownx.arithmatex.generic = true
+pymdownx.details = {}
+pymdownx.highlight.pygments_lang_class = true
+pymdownx.inlinehilite = {}
+pymdownx.snippets.base_path = ["."]
+pymdownx.snippets.check_paths = true
+pymdownx.superfences = {}
+pymdownx.tabbed.alternate_style = true
+
+[project.plugins.search]
+
+# Zensical implements API navigation natively (supported since 0.0.66).
+# No mkdocs-gen-files hooks or unsupported legacy plugins are needed.
+[project.plugins.api-autonav]
+modules = ["src/curvefit_stats"]
+nav_section_title = "API reference"
+api_root_uri = "reference"
+exclude_private = true
+
+[project.plugins.api-autonav.module_options."curvefit_stats$"]
+members = []
+
+[project.plugins.mkdocstrings.handlers.python]
+paths = ["src"]
+load_external_modules = false
+
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "numpy"
+show_root_heading = true
+show_root_full_path = true
+show_source = false
+show_signature_annotations = true
+separate_signature = true
+signature_crossrefs = false
+annotations_path = "brief"
+members_order = "source"
+show_submodules = false
+show_if_no_docstring = false
+filters = "public"
+allow_inspection = false
