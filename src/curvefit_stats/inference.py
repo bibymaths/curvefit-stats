@@ -940,7 +940,9 @@ def profile_likelihood_errors(
     max_nfev, max_bracket_steps : int
         Limits for each optimizer run and each directional bracket search.
     tolerance : float
-        Positive relative root tolerance and baseline optimality tolerance.
+        Positive relative root tolerance. An improvement exceeding
+        tolerance*sigma_level**2 on the likelihood-ratio scale rejects the
+        baseline or invalidates the affected profile direction.
     absolute_sigma : bool
         True uses known Gaussian covariance (unit covariance when sigma is
         absent). False profiles one unknown scale, including for relative sigma.
@@ -980,6 +982,10 @@ def profile_likelihood_errors(
     Root searches allow at most 1000 iterations. A returned finite endpoint must
     resolve its likelihood threshold within 10*tolerance relative error; an
     oversized covariance seed cannot turn zero displacement into a crossing.
+    Optimality checks use the same likelihood-ratio scale and threshold, not a
+    fraction of total SSE. Large parameter-independent residuals therefore
+    cannot relax a known-scale optimum check. Near-equal unknown-scale SSEs
+    use log1p to avoid subtracting nearly equal logarithms.
 
     Examples
     --------
@@ -1041,8 +1047,19 @@ def profile_likelihood_errors(
             values = np.asarray(solution.fun, dtype=float)
         return _squared_norm(values)
 
+    def likelihood_ratio(sse: float) -> float:
+        """Evaluate a signed profile deviance difference from the input fit."""
+        change = sse - best
+        if absolute_sigma:
+            return change
+        if sse == 0:
+            return float("-inf")
+        if abs(change) < best * 0.5:
+            return float(observations.size * np.log1p(change / best))
+        return float(observations.size * (np.log(sse) - np.log(best)))
+
     optimized = fit_at(beta, ~fixed)
-    if best - optimized > tolerance * max(best, np.finfo(float).tiny):
+    if likelihood_ratio(optimized) < -tolerance * threshold:
         raise ValueError("popt is not a local optimum; refit before profiling.")
     if pcov is not None:
         covariance, _, _ = _covariance(pcov, beta.size)
@@ -1087,15 +1104,11 @@ def profile_likelihood_errors(
                 parameters = beta.copy()
                 parameters[parameter_index] += displacement
                 sse = fit_at(parameters, free_mask)
-                if sse < best - tolerance * max(best, np.finfo(float).tiny):
+                ratio = likelihood_ratio(sse)
+                if ratio < -tolerance * threshold:
                     raise RuntimeError(
                         "Profile found a better optimum; refit the base model."
                     )
-                ratio = (
-                    sse - best
-                    if absolute_sigma
-                    else observations.size * (np.log(sse) - np.log(best))
-                )
                 return float(ratio - threshold)
 
             step = float(steps[index])

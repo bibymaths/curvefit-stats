@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from types import SimpleNamespace
 from typing import Any
 
 import numpy as np
@@ -182,6 +183,110 @@ def test_profile_endpoint_accuracy_is_independent_of_covariance_seed(
         0.1 / np.sqrt(x @ x) if known else np.sqrt(rss * np.expm1(1 / x.size) / (x @ x))
     )
     assert_allclose([error["down"], error["up"]], [-width, width], rtol=3e-6)
+
+
+@pytest.mark.parametrize("sigma_level", [0.1, 1.0, 10.0])
+@pytest.mark.parametrize("sigma", [None, [2.0, 1.0], [[4.0, 0.0], [0.0, 1.0]]])
+def test_profile_optimum_check_ignores_known_scale_irreducible_sse(
+    sigma_level: float, sigma: Any
+) -> None:
+    """Reject a poor baseline despite a huge parameter-independent residual."""
+    # The independent WLS optimum is a=10; its known-scale deviance gain is
+    # 100 (unit errors) or 25 (sigma[0]=2), far above tolerance*sigma_level**2.
+    with pytest.raises(ValueError, match="not a local optimum"):
+        cs.profile_likelihood_errors(
+            lambda x, a: a * x,
+            [1.0, 0.0],
+            [10.0, 1e6],
+            [0.0],
+            sigma=sigma,
+            sigma_level=sigma_level,
+            absolute_sigma=True,
+        )
+
+
+def test_profile_optimum_check_uses_unknown_scale_likelihood_threshold() -> None:
+    """Scale unknown-variance improvements by the chosen deviance threshold."""
+    sigma_level = 1e-3
+    threshold = sigma_level**2
+    gain = 2 * np.log1p(100 / 1e12)
+    assert gain > 1e-6 * threshold
+    with pytest.raises(ValueError, match="not a local optimum"):
+        cs.profile_likelihood_errors(
+            lambda x, a: a * x,
+            [1.0, 0.0],
+            [10.0, 1e6],
+            [0.0],
+            sigma_level=sigma_level,
+        )
+
+
+@pytest.mark.parametrize("sigma_level", [0.5, 1.0, 2.0])
+def test_profile_large_sse_true_optimum_has_analytical_endpoints(
+    sigma_level: float,
+) -> None:
+    """Retain valid known-scale endpoints despite a large constant SSE term."""
+    result = cs.profile_likelihood_errors(
+        lambda x, a: a * x,
+        [1.0, 0.0],
+        [10.0, 1e4],
+        [10.0],
+        sigma=[2.0, 1.0],
+        absolute_sigma=True,
+        sigma_level=sigma_level,
+    )[0]
+    # Independently, delta deviance=(a-10)**2/4, so widths are 2*sigma_level.
+    assert_allclose(
+        [result["down"], result["up"]],
+        [-2 * sigma_level, 2 * sigma_level],
+        rtol=2e-6,
+        atol=0,
+    )
+
+
+def test_profile_negligible_likelihood_gain_remains_acceptable() -> None:
+    """Allow input error smaller than the documented likelihood-scale tolerance."""
+    tolerance, sigma_level, standard_deviation = 1e-4, 1.0, 2.0
+    offset = 0.25 * np.sqrt(tolerance) * sigma_level * standard_deviation
+    result = cs.profile_likelihood_errors(
+        lambda x, a: a * x,
+        [1.0, 0.0],
+        [10.0, 1.0],
+        [10.0 - offset],
+        sigma=[standard_deviation, 1.0],
+        absolute_sigma=True,
+        sigma_level=sigma_level,
+        tolerance=tolerance,
+    )[0]
+    width = np.sqrt((sigma_level * standard_deviation) ** 2 + offset**2)
+    assert_allclose(
+        [result["down"], result["up"]],
+        [offset - width, offset + width],
+        rtol=2 * tolerance,
+        atol=0,
+    )
+
+
+def test_profile_directional_optimum_check_uses_likelihood_scale(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Invalidate a direction finding a better fit missed by the baseline solver."""
+
+    def unchanged_baseline(fun: Any, x0: Any, **kwargs: Any) -> Any:
+        """Simulate a locally stopped baseline solver to test the second guard."""
+        return SimpleNamespace(success=True, fun=fun(np.asarray(x0)), message="stopped")
+
+    monkeypatch.setattr(optimize, "least_squares", unchanged_baseline)
+    with pytest.warns(UserWarning) as caught:
+        result = cs.profile_likelihood_errors(
+            lambda x, a: a * x,
+            [1.0, 0.0],
+            [10.0, 1e6],
+            [0.0],
+            absolute_sigma=True,
+        )[0]
+    assert np.isnan(result["up"])
+    assert any("better optimum" in str(item.message) for item in caught)
 
 
 def test_positive_band_uncertainty_underflow_is_not_zero_width() -> None:

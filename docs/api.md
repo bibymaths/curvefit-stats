@@ -650,7 +650,9 @@ pcov : array_like, optional
 max_nfev, max_bracket_steps : int
     Limits for each optimizer run and each directional bracket search.
 tolerance : float
-    Positive relative root tolerance and baseline optimality tolerance.
+    Positive relative root tolerance. An improvement exceeding
+    tolerance*sigma_level**2 on the likelihood-ratio scale rejects the
+    baseline or invalidates the affected profile direction.
 absolute_sigma : bool
     True uses known Gaussian covariance (unit covariance when sigma is
     absent). False profiles one unknown scale, including for relative sigma.
@@ -690,6 +692,10 @@ Non-finite trial evaluations warn and leave that endpoint unresolved.
 Root searches allow at most 1000 iterations. A returned finite endpoint must
 resolve its likelihood threshold within 10*tolerance relative error; an
 oversized covariance seed cannot turn zero displacement into a crossing.
+Optimality checks use the same likelihood-ratio scale and threshold, not a
+fraction of total SSE. Large parameter-independent residuals therefore
+cannot relax a known-scale optimum check. Near-equal unknown-scale SSEs
+use log1p to avoid subtracting nearly equal logarithms.
 
 Examples
 --------
