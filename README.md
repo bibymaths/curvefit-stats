@@ -1,6 +1,10 @@
+<p align="left">
+  <img src="docs/assets/brand/logo.svg" alt="curvefit-stats logo" width="150">
+</p>
+
 # curvefit-stats
 
-[Documentation website](https://bibymaths.github.io/curvefit-stats/) ·
+[Documentation](https://bibymaths.github.io/curvefit-stats/) ·
 [Quickstart](docs/quickstart.md) · [Build the docs](docs/documentation.md)
 
 Statistical inference for SciPy-style nonlinear models, plus shared-parameter
@@ -38,6 +42,17 @@ The SciPy upper limit applies to the EIV backend: `scipy.odr` is deprecated in
 SciPy 1.17 and removed in 1.19. EIV calls on deprecated versions emit a
 `FutureWarning`; calls outside the supported range fail explicitly. See the
 [ODR compatibility notes](docs/user-guide.md#errors-in-both-axes).
+
+> [!IMPORTANT]
+> **Python and SciPy Compatibility**
+>
+> `curvefit-stats` supports **Python 3.11+** and requires **SciPy >=1.12,<1.19**.
+>
+> SciPy deprecated `scipy.odr` in version 1.17 and removes it in version 1.19. Since `curvefit-stats` currently relies on `scipy.odr` for errors-in-variables regression through `eiv_curve_fit`, SciPy versions 1.19 and newer are not supported.
+>
+> **For users:** No action is required when installing normally; package dependency constraints ensure a compatible SciPy version is selected.
+>
+> **For maintainers:** Do not remove the SciPy upper bound until `eiv_curve_fit` has been migrated to a supported ODR backend and its numerical compatibility tests have passed.
 
 ## Quick start: concentration decay
 

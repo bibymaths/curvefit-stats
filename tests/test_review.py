@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from types import SimpleNamespace
 from typing import Any
 
 import numpy as np
@@ -267,26 +266,37 @@ def test_profile_negligible_likelihood_gain_remains_acceptable() -> None:
     )
 
 
-def test_profile_directional_optimum_check_uses_likelihood_scale(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """Invalidate a direction finding a better fit missed by the baseline solver."""
+def test_profile_baseline_optimum_check_uses_likelihood_scale() -> None:
+    """Reject a suboptimal fit despite large parameter-independent SSE."""
 
-    def unchanged_baseline(fun: Any, x0: Any, **kwargs: Any) -> Any:
-        """Simulate a locally stopped baseline solver to test the second guard."""
-        return SimpleNamespace(success=True, fun=fun(np.asarray(x0)), message="stopped")
+    def model(x: np.ndarray, a: float) -> np.ndarray:
+        return a * x
 
-    monkeypatch.setattr(optimize, "least_squares", unchanged_baseline)
-    with pytest.warns(UserWarning) as caught:
-        result = cs.profile_likelihood_errors(
-            lambda x, a: a * x,
-            [1.0, 0.0],
-            [10.0, 1e6],
-            [0.0],
+    x = np.array([1.0, 0.0])
+    y = np.array([10.0, 1e6])
+    popt = np.array([0.0])
+
+    # The baseline has a large parameter-independent residual.
+    baseline_sse = np.sum((y - model(x, *popt)) ** 2)
+
+    # The optimal parameter is a=10, improving SSE by 100.
+    optimal_sse = np.sum((y - model(x, 10.0)) ** 2)
+
+    assert baseline_sse - optimal_sse == pytest.approx(100.0)
+
+    # The improvement exceeds the likelihood-ratio threshold,
+    # despite being tiny relative to the total SSE.
+    with pytest.raises(
+        ValueError,
+        match="popt is not a local optimum",
+    ):
+        cs.profile_likelihood_errors(
+            model,
+            x,
+            y,
+            popt,
             absolute_sigma=True,
-        )[0]
-    assert np.isnan(result["up"])
-    assert any("better optimum" in str(item.message) for item in caught)
+        )
 
 
 def test_positive_band_uncertainty_underflow_is_not_zero_width() -> None:
