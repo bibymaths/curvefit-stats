@@ -465,6 +465,44 @@ def test_profile_zero_sse_and_suboptimal() -> None:
         )
 
 
+def test_profile_rejects_near_collinear_false_convergence() -> None:
+    """Reject a suboptimal baseline with nearly collinear parameters."""
+
+    def model(
+        x: np.ndarray,
+        a: float,
+        b: float,
+    ) -> np.ndarray:
+        return a + b * (1.0 + 1e-10 * x)
+
+    x = np.array([1.0, -1.0])
+    y = np.array([10.0, -10.0])
+    popt = np.array([0.0, 0.0])
+
+    baseline_sse = float(np.sum((y - model(x, *popt)) ** 2))
+
+    assert baseline_sse == pytest.approx(200.0)
+
+    # A substantially better feasible parameter vector exists.
+    alternative = np.array([-1e11, 1e11])
+    alternative_sse = float(np.sum((y - model(x, *alternative)) ** 2))
+
+    assert alternative_sse < 1e-6
+
+    with pytest.raises(
+        ValueError,
+        match="not a local optimum",
+    ):
+        inf.profile_likelihood_errors(
+            model,
+            x,
+            y,
+            popt,
+            sigma=np.ones_like(y),
+            absolute_sigma=True,
+        )
+
+
 def test_bootstrap_reproducibility_and_manual_reference() -> None:
     """Bootstrap reproducibility and manual reference."""
     x = np.arange(1.0, 8.0)

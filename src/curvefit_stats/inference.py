@@ -1022,30 +1022,116 @@ def profile_likelihood_errors(
     fixed = lower == upper
 
     def fit_at(full: _Array, free: NDArray[np.bool_]) -> float:
-        """Optimize only free coordinates and return their weighted SSE."""
+        """Minimize weighted SSE and probe weak Jacobian directions."""
 
         def residual_function(nuisance: _Array) -> _Array:
-            """Reconstruct a full parameter vector without mutating its template."""
             parameters = full.copy()
             parameters[free] = nuisance
             return _whiten(
-                observations - _evaluate(func, coordinates, parameters), noise
+                observations - _evaluate(func, coordinates, parameters),
+                noise,
             )
 
         if not np.any(free):
-            values = residual_function(np.empty(0))
-        else:
-            solution = optimize.least_squares(
-                residual_function,
-                full[free],
-                bounds=(lower[free], upper[free]),
-                max_nfev=max_nfev,
-                x_scale="jac",
-            )
-            if not solution.success:
-                raise RuntimeError(f"Nuisance optimizer failed: {solution.message}")
-            values = np.asarray(solution.fun, dtype=float)
-        return _squared_norm(values)
+            return _squared_norm(residual_function(np.empty(0)))
+
+        lo, hi = lower[free], upper[free]
+
+        solution = optimize.least_squares(
+            residual_function,
+            full[free],
+            bounds=(lo, hi),
+            max_nfev=max_nfev,
+            x_scale="jac",
+        )
+
+        if not solution.success:
+            raise RuntimeError(f"Nuisance optimizer failed: {solution.message}")
+
+        point = np.asarray(solution.x, dtype=float)
+        values = residual_function(point)
+        value = _squared_norm(values)
+
+        # An absolute gradient stopping criterion can report convergence
+        # in nearly collinear parameter directions even when a much
+        # better least-squares solution exists.
+        #
+        # Probe a full-rank Gauss-Newton direction independently.
+        # Accept only improvements confirmed by the actual residual
+        # objective, never by the linear approximation alone.
+
+        for _ in range(3):
+            columns: list[_Array] = []
+
+            for j in range(point.size):
+                step = max(1.0, abs(float(point[j])))
+
+                plus = point.copy()
+                minus = point.copy()
+
+                plus[j] = min(float(hi[j]), point[j] + step)
+                minus[j] = max(float(lo[j]), point[j] - step)
+
+                if plus[j] == minus[j]:
+                    raise RuntimeError("Cannot verify nuisance Jacobian at a bound.")
+
+                try:
+                    column = (residual_function(plus) - residual_function(minus)) / (
+                        plus[j] - minus[j]
+                    )
+                except (ValueError, FloatingPointError):
+                    columns = []
+                    break
+
+                columns.append(column)
+
+            if not columns:
+                break
+
+            jacobian = np.column_stack(columns)
+
+            try:
+                displacement, _, rank, _ = linalg.lstsq(
+                    jacobian,
+                    -values,
+                    cond=np.finfo(float).eps,
+                )
+            except linalg.LinAlgError as error:
+                raise RuntimeError("Nuisance Jacobian decomposition failed.") from error
+
+            if rank < point.size:
+                break
+
+            improved = False
+
+            for multiplier in (1.0, 0.5, 0.25, 0.125, 0.0625):
+                with np.errstate(over="ignore", invalid="ignore"):
+                    candidate = np.clip(
+                        point + multiplier * displacement,
+                        lo,
+                        hi,
+                    )
+
+                if not np.isfinite(candidate).all() or np.array_equal(candidate, point):
+                    continue
+
+                try:
+                    candidate_values = residual_function(candidate)
+                    candidate_sse = _squared_norm(candidate_values)
+                except (ValueError, FloatingPointError):
+                    continue
+
+                if candidate_sse < value:
+                    point = candidate
+                    values = candidate_values
+                    value = candidate_sse
+                    improved = True
+                    break
+
+            if not improved:
+                break
+
+        return value
 
     def likelihood_ratio(sse: float) -> float:
         """Evaluate a signed profile deviance difference from the input fit."""
