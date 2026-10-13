@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from decimal import Decimal
 from typing import Any
 
 import numpy as np
@@ -194,6 +195,105 @@ def test_positive_band_uncertainty_underflow_is_not_zero_width() -> None:
             reference="normal",
             jac=lambda x, a: x[:, None],
         )
+
+
+@pytest.mark.parametrize("correlated", [False, True])
+@pytest.mark.parametrize("prediction", [False, True])
+def test_singular_covariance_positive_support_underflow(
+    correlated: bool, prediction: bool
+) -> None:
+    """Reject underflow at an uncertain point even with another zero-SE point."""
+    covariance = np.array(
+        [[1e-300, 1e-300], [1e-300, 1e-300]]
+        if correlated
+        else [[1e-300, 0.0], [0.0, 0.0]]
+    )
+    x = np.array([0.0, 1e-200])
+    # Independent exact-decimal quadratic form: both gradients are x.
+    variance = Decimal.from_float(x[1]) ** 2 * sum(
+        Decimal.from_float(float(value)) for value in covariance.flat
+    )
+    assert variance > 0
+    assert float(variance.sqrt()) == 0
+    with pytest.raises(FloatingPointError, match="Positive mean uncertainty"):
+        cs.generate_error_bands(
+            lambda x, a, b: (a + b) * x,
+            x,
+            [0.0, 0.0],
+            covariance,
+            reference="normal",
+            jac=lambda x, a, b: np.column_stack((x, x)),
+            interval_type="prediction" if prediction else "confidence",
+            prediction_variance=0.0 if prediction else None,
+        )
+
+
+def test_singular_underflow_with_large_fixed_parameter_gradient() -> None:
+    """A large gradient in a fixed direction must not hide uncertain support."""
+    with pytest.raises(FloatingPointError, match="Positive mean uncertainty"):
+        cs.generate_error_bands(
+            lambda x, a, b: a * x + b / x,
+            [1e-200],
+            [0.0, 0.0],
+            [[1e-300, 0.0], [0.0, 0.0]],
+            reference="normal",
+            jac=lambda x, a, b: np.column_stack((x, 1 / x)),
+        )
+
+
+@pytest.mark.parametrize(
+    "covariance, gradients",
+    [
+        ([[1e-300, 0.0], [0.0, 0.0]], [[0.0, 1.0], [0.0, 0.0]]),
+        ([[4.0, 2.0], [2.0, 1.0]], [[1.0, -2.0], [0.0, 0.0]]),
+        ([[0.0, 0.0], [0.0, 0.0]], [[1.0, 2.0], [0.0, 0.0]]),
+    ],
+)
+def test_singular_nullspace_bands_remain_zero(
+    covariance: list[list[float]], gradients: list[list[float]]
+) -> None:
+    """Preserve exact zero variance for fixed, correlated-null and zero inputs."""
+    design = np.array(gradients)
+    matrix = np.array(covariance)
+    assert_allclose(np.einsum("ij,jk,ik->i", design, matrix, design), 0, atol=0)
+    parameters = np.array([2.0, 3.0])
+    lower, upper = cs.generate_error_bands(
+        lambda x, a, b: a * x[0] + b * x[1],
+        design.T,
+        parameters,
+        covariance,
+        reference="normal",
+        jac=lambda x, a, b: x.T,
+    )
+    assert_allclose(lower, design @ parameters, rtol=0, atol=0)
+    assert_allclose(upper, lower, rtol=0, atol=0)
+
+
+@pytest.mark.parametrize("correlated", [False, True])
+def test_singular_representable_subnormal_bands(correlated: bool) -> None:
+    """Keep positive subnormal widths, using an independent decimal reference."""
+    covariance = np.array(
+        [[1e-300, 1e-300], [1e-300, 1e-300]]
+        if correlated
+        else [[1e-300, 0.0], [0.0, 0.0]]
+    )
+    x = np.array([1e-160])
+    variance = Decimal.from_float(x[0]) ** 2 * sum(
+        Decimal.from_float(float(value)) for value in covariance.flat
+    )
+    from scipy.special import ndtri
+
+    expected = float(ndtri(0.975)) * float(variance.sqrt())
+    assert expected > 0
+    lower, upper = cs.generate_error_bands(
+        lambda x, a, b: (a + b) * x,
+        x,
+        [0.0, 0.0],
+        covariance,
+        reference="normal",
+        jac=lambda x, a, b: np.column_stack((x, x)),
+    )
+    assert_allclose([lower[0], upper[0]], [-expected, expected], rtol=5e-13, atol=0)
 
 
 def test_tiny_confidence_quantile_cannot_collapse_positive_width() -> None:

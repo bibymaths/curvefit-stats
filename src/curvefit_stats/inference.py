@@ -12,6 +12,7 @@ from __future__ import annotations
 import inspect
 import warnings
 from collections.abc import Callable
+from fractions import Fraction
 from functools import wraps
 from typing import Any, Literal, cast
 
@@ -435,6 +436,9 @@ def generate_error_bands(
     responsibility. Linearization may be unreliable near bounds or in strongly
     nonlinear or non-identifiable models. Unrepresentable band endpoints raise
     FloatingPointError instead of returning infinite or collapsed bands.
+    Singular covariance permits zero mean uncertainty in its nullspace. A
+    nonzero projection onto its positive-variance support that underflows to
+    zero instead raises FloatingPointError.
 
     Examples
     --------
@@ -526,8 +530,22 @@ def generate_error_bands(
             )
     elif prediction_variance is not None:
         raise ValueError("prediction_variance is only valid for prediction intervals.")
-    if np.all(eigenvalues > 0) and np.any(
-        (standard_error == 0) & np.any(derivative != 0, axis=1)
+    # A singular covariance can still carry positive uncertainty at a point.
+    # Check zero-SE gradients against its physical positive-eigenvalue support.
+    # Exact float products avoid underflow in this diagnostic too, while exact
+    # cancellation preserves legitimate zero uncertainty in the nullspace.
+    if any(
+        sum(
+            (
+                Fraction(float(component)) * Fraction(float(coordinate))
+                for component, coordinate in zip(gradient, direction, strict=True)
+                if component != 0 and coordinate != 0
+            ),
+            Fraction(0),
+        )
+        != 0
+        for gradient in derivative[standard_error == 0]
+        for direction in eigenvectors[:, eigenvalues > 0].T
     ):
         raise FloatingPointError(
             "Positive mean uncertainty underflows float64; rescale the output."

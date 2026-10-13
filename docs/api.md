@@ -609,6 +609,9 @@ The API cannot infer a noise model from pcov; choosing it is the caller's
 responsibility. Linearization may be unreliable near bounds or in strongly
 nonlinear or non-identifiable models. Unrepresentable band endpoints raise
 FloatingPointError instead of returning infinite or collapsed bands.
+Singular covariance permits zero mean uncertainty in its nullspace. A
+nonzero projection onto its positive-variance support that underflows to
+zero instead raises FloatingPointError.
 
 Examples
 --------
