@@ -1,0 +1,67 @@
+/* Local system typography; restrained scientific colors, both theme schemes. */
+:root {
+  --md-text-font: "Inter", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --md-code-font: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --md-primary-fg-color: #2563eb;
+  --md-accent-fg-color: #087f8c;
+  --cf-border: rgba(78, 103, 133, .19);
+  --cf-panel: rgba(36, 101, 235, .035);
+  --cf-muted: #52647b;
+}
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #8bb2ff;
+  --md-accent-fg-color: #5dd8d0;
+  --md-default-bg-color: #111722;
+  --md-default-fg-color: #e4eaf3;
+  --md-default-fg-color--light: #b6c3d6;
+  --cf-border: rgba(161, 186, 218, .19);
+  --cf-panel: rgba(112, 161, 255, .05);
+  --cf-muted: #afbed2;
+}
+.md-grid { max-width: 76rem; }
+.md-content:has(.cf-hero) { max-width: 60rem; margin-inline: auto; }
+.md-typeset { font-size: .82rem; line-height: 1.75; }
+.md-typeset h1, .md-typeset h2, .md-typeset h3 { font-weight: 650; letter-spacing: -.025em; }
+.md-typeset h1 { color: var(--md-default-fg-color); }
+.md-typeset h2 { margin-top: 2.1em; }
+.md-typeset code { font-size: .86em; }
+.md-typeset pre > code { border: 1px solid var(--cf-border); border-radius: .5rem; }
+.md-typeset table:not([class]) { border-radius: .5rem; border-color: var(--cf-border); }
+.md-typeset .admonition, .md-typeset details { border-radius: .5rem; }
+.md-typeset a:focus-visible, .md-button:focus-visible { outline: 3px solid var(--md-accent-fg-color); outline-offset: 3px; }
+.cf-hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 0 1rem; }
+.cf-eyebrow { color: var(--md-accent-fg-color); font-size: .62rem; font-weight: 750; letter-spacing: .14em; }
+.cf-hero .cf-hero-copy h1 { font-size: clamp(2rem, 4.6vw, 3.3rem); font-weight: 750; line-height: 1.06; margin: .65rem 0 1rem; letter-spacing: -.045em; }
+.cf-hero-copy > p { color: var(--cf-muted); max-width: 27rem; font-size: .94rem; line-height: 1.65; }
+.cf-hero .md-button { border-radius: .45rem; padding: .55rem 1rem; font-size: .72rem; margin: .35rem .3rem .25rem 0; }
+.cf-hero .md-button--primary { background: #2563eb; border-color: #2563eb; color: white; }
+.cf-hero-meta { font-size: .65rem; color: var(--cf-muted); margin-top: .65rem; }
+.md-typeset .cf-hero-figure { width: 100%; box-sizing: border-box; margin: 0 !important; padding: .7rem; border: 1px solid var(--cf-border); background: var(--cf-panel); border-radius: 1rem; box-shadow: 0 12px 48px rgba(28, 70, 119, .06); }
+.md-typeset .cf-hero-figure img { width: 100%; height: auto; }
+.cf-hero-figure figcaption { margin: .15rem 0 .3rem; color: var(--cf-muted); font-size: .65rem; font-style: normal; }
+.cf-proof-strip { display: flex; justify-content: space-between; gap: .8rem; padding: .9rem 0; margin: 1rem 0 2rem; border-block: 1px solid var(--cf-border); color: var(--cf-muted); font-size: .7rem; }
+.cf-proof-strip strong { color: var(--md-default-fg-color); font-size: 1rem; padding-right: .25rem; }
+.md-typeset .grid.cards > ul > li { border-color: var(--cf-border); border-radius: .7rem; padding: 1rem; background: var(--cf-panel); box-shadow: none; }
+.md-typeset .grid.cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.md-typeset .grid.cards > ul > li:hover { border-color: var(--md-primary-fg-color); box-shadow: 0 4px 16px rgba(28, 70, 119, .06); }
+.md-typeset .grid.cards > ul > li > p:first-child { font-size: .92rem; }
+.md-typeset .arithmatex { overflow-x: auto; overflow-y: hidden; }
+.doc-heading { scroll-margin-top: 5rem; }
+/* Hide the empty Overview sidebar on desktop, retaining the mobile drawer. */
+@media (min-width: 76.25em) {
+  .md-main__inner:has(.cf-hero) > .md-sidebar--primary { display: none; }
+}
+@media (max-width: 700px) {
+  .cf-hero { grid-template-columns: 1fr; gap: 1rem; }
+  .cf-hero-copy > p { max-width: none; }
+  .md-typeset .cf-hero-figure { max-width: 30rem; width: 100%; box-sizing: border-box; justify-self: center; }
+  .cf-proof-strip { flex-wrap: wrap; justify-content: flex-start; column-gap: 1.2rem; }
+  .md-typeset .grid.cards { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}
+@media print {
+  .cf-hero { display: block; }
+  .cf-hero-figure { max-width: 18rem; }
+}

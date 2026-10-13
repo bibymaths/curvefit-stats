@@ -1,5 +1,8 @@
 # curvefit-stats
 
+[Documentation website](https://bibymaths.github.io/curvefit-stats/) ·
+[Quickstart](docs/quickstart.md) · [Build the docs](docs/documentation.md)
+
 Statistical inference for SciPy-style nonlinear models, plus shared-parameter
 fitting and errors-in-variables regression. Use ordinary functions written as
 `model(x, *parameters)` with NumPy arrays.
@@ -111,8 +114,10 @@ covariance at active bounds is not full marginal uncertainty; and empirical
 bootstrap covariance does not establish a Student-t pivot.
 
 Read the [user guide](docs/user-guide.md) for equations, assumptions, failure
-handling, and workflow choices. The [API reference](docs/api.md) reproduces the
-actual signatures and NumPy-style docstrings. The
+handling, and workflow choices. The
+[API reference](https://bibymaths.github.io/curvefit-stats/reference/) is generated
+directly from Python source and NumPy-style docstrings on every site build. A
+[generated offline snapshot](docs/api.md) is retained for repository readers. The
 [integration guide](docs/integration.md) explains covariance projection between
 modules, and the [stress-test report](docs/stress-testing.md) records independent
 numerical validation and remaining scientific limitations.

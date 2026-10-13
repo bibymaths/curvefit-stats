@@ -8,7 +8,7 @@ in mM, and velocity in µmol/min. Rate constants have units h⁻¹; half-life is
 
 Run all workflows with `PYTHONPATH=src python examples/workflows.py` from the
 checkout. Each section below names its selectable workflow. The
-[API reference](api.md) describes all arguments, output shapes, exceptions,
+[API reference](reference/index.md) describes all arguments, output shapes, exceptions,
 notes, and doctest examples. All features can be imported from the package root
 or directly from the two functional modules.
 
@@ -16,9 +16,14 @@ or directly from the two functional modules.
 
 Let `r = y - f(x, θ)`, N be the observation count, p the number of estimated
 parameters, and J the model parameter Jacobian. For observation covariance C,
-weighted least squares minimizes `Q = rᵀ C⁻¹ r`. Independent observations with
-standard deviations σᵢ have `C = diag(σᵢ²)` and
-`Q = sum((rᵢ/σᵢ)²)`.
+weighted least squares minimizes
+
+$$
+Q=r^T C^{-1}r=\sum_i (r_i/\sigma_i)^2,
+\qquad C=\operatorname{diag}(\sigma_i^2)
+$$
+
+for independent observations with standard deviations $\sigma_i$.
 
 - Scalar `sigma` means the same **standard deviation** for every observation.
 - Vector `sigma` supplies one positive, finite standard deviation per observation.
@@ -29,9 +34,18 @@ standard deviations σᵢ have `C = diag(σᵢ²)` and
   asserts known unit variance; with `False`, it estimates an unknown common scale.
 
 With known absolute covariance (`absolute_sigma=True`), the interior local
-approximation is `pcov ≈ (Jᵀ C⁻¹ J)⁻¹`. With `False`, C specifies relative
-weights and the returned covariance is approximately
-`pcov ≈ [Q/(N-p)] (Jᵀ C⁻¹ J)⁻¹`.
+approximation is
+
+$$
+V\approx (J^T C^{-1}J)^{-1}.
+$$
+
+With `False`, C specifies relative weights and the returned covariance is
+approximately
+
+$$
+V\approx \frac{Q}{N-p}(J^T C^{-1}J)^{-1}.
+$$
 Multiplying all relative standard deviations by a common factor changes neither
 the fit nor its scaled covariance. Multiplying known absolute standard deviations
 changes the absolute parameter covariance by the square of that factor.
@@ -52,8 +66,11 @@ Workflow: `confidence`.
 
 First call SciPy `curve_fit`, then pass the fitted parameters and covariance to
 `generate_error_bands`. At evaluation point x, linearization gives
-`Var[f(x, θ̂)] ≈ j(x) pcov j(x)ᵀ`. The confidence endpoints are
-`f(x, θ̂) ± q sqrt(Var[f(x, θ̂)])`.
+
+$$
+\operatorname{Var}[f(x,\hat\theta)]\approx j(x)Vj(x)^T,
+\qquad f(x,\hat\theta)\pm q\sqrt{j(x)Vj(x)^T}.
+$$
 
 For unknown common Gaussian variance, the default q is the Student-t upper-tail
 quantile at `alpha/2` with residual degrees of freedom N-p. Supply the original
@@ -74,7 +91,11 @@ Workflow: `intervals`.
 
 A confidence interval concerns the fitted **mean**. A prediction interval
 concerns a **new scalar observation** and adds its measurement variance:
-`Var[prediction error] ≈ j pcov jᵀ + Var[future noise]`.
+
+$$
+\operatorname{Var}[\text{prediction error}]\approx jVj^T+\sigma_{\mathrm{future}}^2.
+$$
+
 This assumes the future observation noise is independent of parameter estimation.
 
 For an ordinary unweighted unknown-scale fit, supplying y lets the prediction
@@ -114,11 +135,20 @@ AIC, and BIC. Raw residual variance is in response units and is not an estimated
 heteroscedastic covariance matrix. Counts are returned as floats.
 
 For known C, the normalized Gaussian deviance is
-`D = -2 log L = N log(2π) + log det(C) + Q`, with `K=p` likelihood parameters.
+
+$$
+D=-2\log L=N\log(2\pi)+\log\det C+Q,\qquad K=p.
+$$
 For relative C with one unknown multiplier s², its maximum-likelihood estimate
 is `s²_ML=Q/N`, and
-`D = N[log(2π) + 1 + log(Q/N)] + log det(C)`, with `K=p+1`.
-Then `AIC=D+2K` and `BIC=D+K log N`.
+
+$$
+D=N[\log(2\pi)+1+\log(Q/N)]+\log\det C,\qquad K=p+1,
+$$
+
+$$
+\mathrm{AIC}=D+2K,\qquad\mathrm{BIC}=D+K\log N.
+$$
 
 The divisor N in the likelihood estimate differs deliberately from N-p in
 covariance/residual-variance scaling. Gaussian normalization is retained;
@@ -368,7 +398,7 @@ measurement uncertainties are rejected. Undefined statistical quantities are
 reported as warned NaNs or infinities where documented; optimization failures
 must not produce fabricated finite uncertainties. Finite values outside usable
 float64 numerical range can raise `FloatingPointError` or invalidate covariance.
-Read each [API exception contract](api.md) before handling failures.
+Read each [API exception contract](reference/index.md) before handling failures.
 
 Examples intentionally retain warnings for strong correlation and conditional
 bound covariance. EIV retains its SciPy compatibility warning. The package has
@@ -378,35 +408,13 @@ models and scales, not universal coverage or convergence for arbitrary models.
 
 ## Documentation verification
 
-This documentation phase executed every one of the eleven workflows with only
-NumPy, SciPy, the package, and standard-library dependencies. Automated checks
-execute the README quick start, its dependent prediction snippet, the integration
-guide's sequential snippets, and all workflow functions. They also compare the
-API reference to the actual signatures/docstrings and reject unexpected warnings
-from the executable workflows.
+The documentation website renders API signatures and NumPy-style docstrings
+from source and includes the original example file directly. Its strict build
+and validation job executes all eleven workflows, authored Python tutorial
+blocks, and checks local links, assets and API anchors. The generated offline
+API snapshot remains available for repository readers and existing regression
+checks; it is excluded from the site to avoid duplication.
 
-The full suite passed **357 tests** in both the main SciPy 1.18.1 environment and
-the lower-version SciPy 1.12.0 environment, with **96.66% package line coverage**
-in the main environment. **13 doctests** passed, including the two scientific
-model examples; one bound-active covariance warning was expected. Ruff lint and
-format checks and strict mypy passed. No functionality or public signatures were
-changed during documentation.
-
-Commands ran from the repository root:
-
-```bash
-PYTHONPATH=src .venv/bin/python examples/workflows.py
-PYTHONPATH=src .venv/bin/python -m pytest -q tests -W error --cov=curvefit_stats --cov-report=term-missing --cov-fail-under=90
-PYTHONPATH=src /workspace/setup-checks/curvefit-stats/compat-venv/bin/python -m pytest -q tests -W error
-PYTHONPATH=src .venv/bin/python -m pytest -q --doctest-modules src/curvefit_stats examples
-.venv/bin/ruff check --isolated --select E,F,I,B,UP,D --config 'lint.pydocstyle.convention="numpy"' src examples tests
-.venv/bin/ruff format --isolated --check src examples tests
-.venv/bin/mypy --strict src examples tests
-git diff --check
-```
-
-The lower-version environment path is specific to this verification workspace;
-replace it with the appropriate interpreter path when repeating compatibility
-checks elsewhere. These results describe the documentation phase. Packaging and current quality
-commands are recorded in the [development guide](development.md); install the
-checkout with `pip install .` or continue to use `PYTHONPATH=src`.
+See [documentation development](documentation.md) for reproducible uv commands
+and deployment, and [release verification](release-readiness.md) for the
+scientific suite, coverage and compatibility evidence.

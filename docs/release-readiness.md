@@ -33,7 +33,7 @@ inside `estimators.py`; `py.typed` is included in both distribution types.
 The signature/docstring consistency tests passed for all ten root exports and
 `GlobalFitGroup.fit`. No signature or runtime source changed in this final pass.
 The exact signatures, annotations, NumPy-style Parameters/Returns/Raises/Notes/
-Examples sections and return shapes are in [the API reference](api.md).
+Examples sections and return shapes are in [the API reference](reference/index.md).
 
 Bands return lower/upper arrays; audit and collinearity return metric dictionaries;
 summary returns a table string; profiles return per-parameter error dictionaries;
