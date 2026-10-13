@@ -56,7 +56,7 @@ def test_readme_and_user_guide_python_examples_execute() -> None:
     """Run the quick start followed by the explicitly dependent prediction example."""
     namespace: dict[str, Any] = {}
     for relative in ["README.md", "docs/user-guide.md"]:
-        source = (_ROOT / relative).read_text()
+        source = (_ROOT / relative).read_text(encoding="utf-8")
         for index, snippet in enumerate(
             re.findall(r"```python\n(.*?)```", source, flags=re.DOTALL)
         ):
@@ -71,7 +71,7 @@ def test_readme_and_user_guide_python_examples_execute() -> None:
 def test_integration_guide_python_examples_execute() -> None:
     """Execute the existing integration snippets in their documented sequence."""
     namespace: dict[str, Any] = {}
-    source = (_ROOT / "docs" / "integration.md").read_text()
+    source = (_ROOT / "docs" / "integration.md").read_text(encoding="utf-8")
     with warnings.catch_warnings():
         warnings.filterwarnings(
             "ignore", message="scipy.odr is deprecated in SciPy", category=FutureWarning
@@ -89,7 +89,7 @@ def test_integration_guide_python_examples_execute() -> None:
 
 def test_api_reference_matches_source_docstrings_and_signatures() -> None:
     """Guard the checked-in reference against signature and docstring drift."""
-    reference = (_ROOT / "docs" / "api.md").read_text()
+    reference = (_ROOT / "docs" / "api.md").read_text(encoding="utf-8")
     for name in cs.__all__:
         obj = getattr(cs, name)
         assert f"{name}{inspect.signature(obj)}" in reference
