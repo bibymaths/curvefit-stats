@@ -50,7 +50,15 @@ def main() -> None:
     location = Path(cs.__file__).resolve()
     assert not location.is_relative_to(checkout / "src"), location
     metadata = importlib.metadata.metadata("curvefit-stats")
-    assert metadata["Version"] == "0.1.0"
+    from pathlib import Path
+    import tomllib
+
+    project_root = Path(__file__).resolve().parents[1]
+
+    with (project_root / "pyproject.toml").open("rb") as file:
+        expected_version = tomllib.load(file)["project"]["version"]
+
+    assert metadata["Version"] == expected_version
     assert metadata["License-Expression"] == "MIT"
     base_requirements = {
         re.split(r"[<>=!~\s\[]", requirement, maxsplit=1)[0].lower()

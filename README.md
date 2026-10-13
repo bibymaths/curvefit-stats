@@ -4,6 +4,9 @@
 
 # curvefit-stats
 
+[![Release](https://github.com/bibymaths/curvefit-stats/actions/workflows/release.yml/badge.svg)](https://github.com/bibymaths/curvefit-stats/actions/workflows/release.yml) 
+
+
 [Documentation](https://bibymaths.github.io/curvefit-stats/) ·
 [Quickstart](docs/quickstart.md) 
 
