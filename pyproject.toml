@@ -16,8 +16,13 @@ requires-python = ">=3.11"
 # migrated to a supported ODR backend and its numerical compatibility tests pass.
 # Users: Python >=3.11 is supported, but SciPy 1.19+ is not yet compatible.
 license = "MIT"
-license-files = ["LICENSE"]
-authors = [{ name = "Abhinav Mishra" }]
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES"]
+authors = [
+    { name = "Abhinav Mishra", email = "mishraabhinav36@gmail.com" }
+]
+maintainers = [
+    { name = "Abhinav Mishra", email = "mishraabhinav36@gmail.com" }
+]
 keywords = ["curve-fitting", "statistics", "uncertainty", "nonlinear-regression"]
 classifiers = [
     "Development Status :: 3 - Alpha",

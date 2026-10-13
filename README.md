@@ -5,7 +5,7 @@
 # curvefit-stats
 
 [Documentation](https://bibymaths.github.io/curvefit-stats/) ·
-[Quickstart](docs/quickstart.md) · [Build the docs](docs/documentation.md)
+[Quickstart](docs/quickstart.md) 
 
 Statistical inference for SciPy-style nonlinear models, plus shared-parameter
 fitting and errors-in-variables regression. Use ordinary functions written as
@@ -13,21 +13,19 @@ fitting and errors-in-variables regression. Use ordinary functions written as
 
 The package contains exactly two functional modules:
 
-- `curvefit_stats.inference`: bands, likelihood diagnostics, parameter summaries,
-  profile likelihood, bootstrap covariance, collinearity diagnostics,
-  bound-aware covariance, and derived-quantity propagation.
-- `curvefit_stats.estimators`: `GlobalFitGroup` and `eiv_curve_fit`.
+- `curvefit_stats.inference`: 
+  - bands, likelihood diagnostics, parameter summaries 
+  - profile likelihood, bootstrap covariance, collinearity diagnostics,  
+  - bound-aware covariance, and derived-quantity propagation.
 
-All ten features are also available directly from `curvefit_stats`; these imports
-refer to the same objects, without wrappers.
+- `curvefit_stats.estimators`:  
+  - `GlobalFitGroup`
+  - `eiv_curve_fit`.
 
 ## Run from this checkout
 
 Runtime dependencies are **NumPy >=1.26.4,<3 and SciPy >=1.12,<1.19**,
 plus Python's standard library.
-The examples require no plotting package, downloaded data, or notebook runtime.
-Python 3.11–3.14 is tested. Install locally from this checkout; no PyPI
-publication is implied by these instructions.
 
 ```bash
 python -m venv .venv
@@ -47,6 +45,8 @@ SciPy 1.17 and removed in 1.19. EIV calls on deprecated versions emit a
 > **Python and SciPy Compatibility**
 >
 > `curvefit-stats` supports **Python 3.11+** and requires **SciPy >=1.12,<1.19**.
+>
+> EIV calls on deprecated versions emit a `FutureWarning`; calls outside the supported range fail explicitly. See the [ODR compatibility notes](docs/user-guide.md#errors-in-both-axes) 
 >
 > SciPy deprecated `scipy.odr` in version 1.17 and removes it in version 1.19. Since `curvefit-stats` currently relies on `scipy.odr` for errors-in-variables regression through `eiv_curve_fit`, SciPy versions 1.19 and newer are not supported.
 >
@@ -89,7 +89,7 @@ measurement. The original fitting sample determines degrees of freedom, not
 `grid`. For known absolute Gaussian errors, fit with `absolute_sigma=True` and
 choose `reference="normal"` for bands.
 
-## Eleven executable workflows
+## Executable workflows
 
 [examples/workflows.py](examples/workflows.py) provides seeded, independently
 selectable examples. Run `PYTHONPATH=src python examples/workflows.py NAME`.
@@ -148,3 +148,36 @@ installation; it does not publish releases.
 
 The [pre-release scientific review](docs/review.md) records independently
 reproduced defects, regression fixes, scientific limitations, and release gates.
+
+## Author and Maintainer
+
+**Abhinav Mishra** — Computational Biologist & Scientific Software Developer
+
+`curvefit-stats` was conceived and developed by Abhinav Mishra to make statistical inference and uncertainty quantification more accessible, reproducible, and reliable for scientists using SciPy's nonlinear optimization tools.
+
+- **GitHub:** [@bibymaths](https://github.com/bibymaths)
+- **Contact:** [mishraabhinav36@gmail.com](mailto:mishraabhinav36@gmail.com)
+
+Contributions, bug reports, and scientific discussions are welcome.
+
+### Acknowledgments
+
+`curvefit-stats` is built on the scientific Python ecosystem, particularly [NumPy](https://numpy.org/) for numerical computing and [SciPy](https://scipy.org/) for nonlinear optimization, statistical distributions, and numerical linear algebra.
+
+We gratefully acknowledge the NumPy and SciPy developers and contributors for their foundational open-source work.
+
+`curvefit-stats` is an independent project and is not officially affiliated with or endorsed by NumPy or SciPy. 
+
+## License
+
+Source code: curvefit-stats is licensed under the MIT License.
+
+Documentation: Original documentation, explanatory text, and scientific illustrations are licensed under Creative Commons Attribution 4.0 International (CC BY 4.0), unless otherwise noted.
+
+Copyright © 2026 Abhinav Mishra.
+
+See [LICENSE](LICENSE) for the full license terms.
+
+This project depends on independently licensed open-source libraries, including NumPy and SciPy. Their respective licenses and acknowledgments are documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+The MIT License applies to the original `curvefit-stats` code and does not supersede the licenses of its third-party dependencies.

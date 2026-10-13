@@ -1,0 +1,26 @@
+{
+  "title": "curvefit-stats: Statistical Inference and Uncertainty Quantification for SciPy Curve Fitting",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Mishra, Abhinav",
+      "orcid": "0009-0005-3179-7408",
+      "affiliation": "Independent Researcher, India"
+    }
+  ],
+  "version": "0.1.0",
+  "access_right": "open",
+  "license": "mit",
+  "language": "eng",
+  "keywords": [
+    "nonlinear regression",
+    "statistical inference",
+    "uncertainty quantification",
+    "SciPy",
+    "NumPy",
+    "curve fitting",
+    "profile likelihood",
+    "bootstrap",
+    "errors-in-variables"
+  ]
+}
