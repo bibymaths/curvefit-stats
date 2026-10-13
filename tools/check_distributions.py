@@ -44,7 +44,7 @@ def main() -> None:
         assert len(metadata_paths) == 1
         metadata = BytesParser().parsebytes(wheel.read(metadata_paths[0]))
         assert metadata["Name"] == "curvefit-stats"
-        assert metadata["Version"] == "0.1.0"
+        assert metadata["Version"] == "0.1.1"
         assert metadata["Requires-Python"] == ">=3.11"
         assert metadata["License-Expression"] == "MIT"
         assert any(name.endswith(".dist-info/licenses/LICENSE") for name in files)

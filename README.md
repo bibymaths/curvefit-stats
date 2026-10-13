@@ -22,18 +22,12 @@ The package contains exactly two functional modules:
   - `GlobalFitGroup`
   - `eiv_curve_fit`.
 
-## Run from this checkout
+## Installation
 
-Runtime dependencies are **NumPy >=1.26.4,<3 and SciPy >=1.12,<1.19**,
-plus Python's standard library.
+Install `curvefit-stats` directly from [PyPI](https://pypi.org/project/curvefit-stats/):
 
 ```bash
-python -m venv .venv
-# Activate .venv (Windows: .venv\Scripts\activate).
-source .venv/bin/activate
-python -m pip install .
-python examples/workflows.py
-python examples/workflows.py profile
+pip install curvefit-stats
 ```
 
 The SciPy upper limit applies to the EIV backend: `scipy.odr` is deprecated in
